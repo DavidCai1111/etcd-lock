@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/grpc"
-
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
 )
 
 type LockSuite struct {

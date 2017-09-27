@@ -99,8 +99,9 @@ func (l *Locker) IsLocked(ctx context.Context, keyName string) (bool, error) {
 	end := []byte(clientv3.GetPrefixRangeEnd(string(key)))
 
 	rangeRes, err := l.kvCli.Range(ctx, &etcdserverpb.RangeRequest{
-		Key:      key,
-		RangeEnd: end,
+		Key:       key,
+		RangeEnd:  end,
+		CountOnly: true,
 	})
 
 	if err != nil {
