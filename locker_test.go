@@ -44,6 +44,19 @@ func (s *LockerSuite) TestLockNewKey() {
 	s.Contains(string(lock.keyName), "test_lock_new_key")
 }
 
+func (s *LockerSuite) TestLockLockedKey() {
+	start := time.Now()
+
+	_, err := s.locker.Lock(s.ctx, "test_lock_locked_key", 3*time.Second)
+	s.Nil(err)
+
+	_, err = s.locker.Lock(s.ctx, "test_lock_locked_key", 3*time.Second)
+	s.Nil(err)
+
+	s.True(time.Now().Sub(start) > 3*time.Second)
+	s.True(time.Now().Sub(start) < 4*time.Second)
+}
+
 func TestLocker(t *testing.T) {
 	suite.Run(t, new(LockerSuite))
 }

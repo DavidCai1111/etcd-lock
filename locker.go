@@ -90,6 +90,12 @@ func (l *Locker) Lock(ctx context.Context, keyName string, timeout ...time.Durat
 	return &Lock{locker: l, keyName: lockRes.Key}, nil
 }
 
+func (l *Locker) unlock(ctx context.Context, keyName []byte) error {
+	_, err := l.lockCli.Unlock(ctx, &v3lockpb.UnlockRequest{Key: keyName})
+
+	return err
+}
+
 func (l *Locker) assembleKeyName(keyName string) []byte {
 	return []byte(l.etcdKeyPrefix + keyName)
 }
