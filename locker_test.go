@@ -57,6 +57,41 @@ func (s *LockerSuite) TestLockLockedKey() {
 	s.True(time.Now().Sub(start) < 4*time.Second)
 }
 
+func (s *LockerSuite) TestIsLocked() {
+	isLocked, err := s.locker.IsLocked(s.ctx, "test_is_locked_1")
+
+	s.Nil(err)
+	s.False(isLocked)
+
+	_, err = s.locker.Lock(s.ctx, "test_is_locked_1", 3*time.Second)
+	s.Nil(err)
+
+	_, err = s.locker.Lock(s.ctx, "test_is_locked_2", 10*time.Second)
+	s.Nil(err)
+
+	isLocked, err = s.locker.IsLocked(s.ctx, "test_is_locked_1")
+
+	s.Nil(err)
+	s.True(isLocked)
+
+	isLocked, err = s.locker.IsLocked(s.ctx, "test_is_locked_1")
+
+	s.Nil(err)
+	s.True(isLocked)
+
+	time.Sleep(4 * time.Second)
+
+	isLocked, err = s.locker.IsLocked(s.ctx, "test_is_locked_1")
+
+	s.Nil(err)
+	s.False(isLocked)
+
+	isLocked, err = s.locker.IsLocked(s.ctx, "test_is_locked_2")
+
+	s.Nil(err)
+	s.True(isLocked)
+}
+
 func TestLocker(t *testing.T) {
 	suite.Run(t, new(LockerSuite))
 }
