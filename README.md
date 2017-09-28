@@ -9,3 +9,44 @@ Distributed locks powered by [etcd v3](https://github.com/coreos/etcd) for Go.
 ```
 go get -u github.com/DavidCai1993/etcd-lock
 ```
+
+## Documentation
+
+API documentation can be found here: https://godoc.org/github.com/DavidCai1993/etcd-lock
+
+## Usage
+
+```go
+import (
+  "github.com/DavidCai1993/etcd-lock"
+)
+```
+
+```go
+locker, err := etcdlock.NewLocker(etcdlock.LockerOptions{
+  Address:        "127.0.0.1:2379",
+  DefaultTimeout: 3 * time.Second,
+  DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
+})
+
+if err != nil {
+  log.Fatalln(err)
+}
+
+// Acquire a lock for a specified recource.
+_, err = locker.Lock(context.Background(), "resource_key", 5*time.Second)
+if err != nil {
+  log.Fatalln(err)
+}
+
+// This lock will be acquired after 5s.
+anotherLock, err := locker.Lock(context.Background(), "resource_key")
+if err != nil {
+  log.Fatalln(err)
+}
+
+// Unlock the lock manually.
+if err := anotherLock.Unlock(context.Background()); err != nil {
+  log.Fatalln(err)
+}
+```
