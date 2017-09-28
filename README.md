@@ -3,3 +3,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/DavidCai1993/etcd-lock/badge.svg?branch=master)](https://coveralls.io/github/DavidCai1993/etcd-lock?branch=master)
 
 Distributed locks powered by [etcd v3](https://github.com/coreos/etcd) for Go.
+
+## Installation
+
+```
+go get -u github.com/DavidCai1993/etcd-lock
+```
