@@ -30,9 +30,13 @@ type Locker struct {
 
 // LockerOptions is the options for NewLocker() function.
 type LockerOptions struct {
-	Address        string
-	DialOptions    []grpc.DialOption
-	EtcdKeyPrefix  string
+	// The address of etcd(v3) server.
+	Address string
+	// Options used for `grpc.Dial`.
+	DialOptions []grpc.DialOption
+	// Prefix of the keys of locks in etcd, by default is "__etcd_lock/"
+	EtcdKeyPrefix string
+	// Milliseconds of lock's default timeout.
 	DefaultTimeout time.Duration
 }
 
