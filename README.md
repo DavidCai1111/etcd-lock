@@ -39,7 +39,8 @@ if err != nil {
   log.Fatalln(err)
 }
 
-// This lock will be acquired after 5s.
+// This lock will be acquired after 5s, and before that current goroutine
+// will be blocked.
 anotherLock, err := locker.Lock(context.Background(), "resource_key")
 if err != nil {
   log.Fatalln(err)
