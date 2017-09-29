@@ -2,6 +2,7 @@ package etcdlock
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
@@ -16,7 +17,10 @@ var (
 	ErrEmptyKey = errors.New("empty key")
 )
 
-const defaultEtcdKeyPrefix = "__etcd_lock/"
+const (
+	defaultEtcdKeyPrefix = "__etcd_lock/"
+	retryCount           = 3
+)
 
 // Locker is the client for acquiring distributed locks from etcd. It should be
 // created from NewLocker() function.
@@ -75,22 +79,31 @@ func (l *Locker) Lock(ctx context.Context, keyName string, timeout ...time.Durat
 		ttl = timeout[0]
 	}
 
-	leaseID, err := l.getLease(ctx, ttl)
+	var try int
+	for {
+		try++
+		leaseID, err := l.getLease(ctx, ttl)
 
-	if err != nil {
-		return nil, errors.WithStack(err)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		lockRes, err := l.lockCli.Lock(ctx, &v3lockpb.LockRequest{
+			Name:  l.assembleKeyName(keyName),
+			Lease: leaseID,
+		})
+
+		if err != nil {
+			// Retry when the etcd server is too busy to handle transactions.
+			if try <= retryCount && strings.Contains(err.Error(), "too many requests") {
+				time.Sleep(time.Millisecond * time.Duration(500) * time.Duration(try))
+				continue
+			}
+			return nil, errors.WithStack(err)
+		}
+
+		return &Lock{locker: l, keyName: lockRes.Key}, nil
 	}
-
-	lockRes, err := l.lockCli.Lock(ctx, &v3lockpb.LockRequest{
-		Name:  l.assembleKeyName(keyName),
-		Lease: leaseID,
-	})
-
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	return &Lock{locker: l, keyName: lockRes.Key}, nil
 }
 
 // IsLocked checks whether the specified resource has already been locked.
