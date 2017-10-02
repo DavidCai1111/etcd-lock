@@ -25,7 +25,6 @@ import (
 ```go
 locker, err := etcdlock.NewLocker(etcdlock.LockerOptions{
   Address:        "127.0.0.1:2379",
-  DefaultTimeout: 3 * time.Second,
   DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
 })
 
@@ -41,7 +40,7 @@ if err != nil {
 
 // This lock will be acquired after 5s, and before that current goroutine
 // will be blocked.
-anotherLock, err := locker.Lock(context.Background(), "resource_key")
+anotherLock, err := locker.Lock(context.Background(), "resource_key", 5*time.Second)
 if err != nil {
   log.Fatalln(err)
 }

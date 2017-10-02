@@ -18,9 +18,8 @@ type LockerSuite struct {
 func (s *LockerSuite) SetupSuite() {
 	s.ctx = context.Background()
 	locker, err := NewLocker(LockerOptions{
-		Address:        "127.0.0.1:2379",
-		DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
-		DefaultTimeout: 3 * time.Second,
+		Address:     "127.0.0.1:2379",
+		DialOptions: []grpc.DialOption{grpc.WithInsecure()},
 	})
 	s.Nil(err)
 	s.locker = locker
@@ -28,9 +27,8 @@ func (s *LockerSuite) SetupSuite() {
 
 func (s *LockerSuite) TestNewLocker() {
 	locker, err := NewLocker(LockerOptions{
-		Address:        "127.0.0.1:2379",
-		DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
-		DefaultTimeout: 3 * time.Second,
+		Address:     "127.0.0.1:2379",
+		DialOptions: []grpc.DialOption{grpc.WithInsecure()},
 	})
 
 	s.Nil(err)
@@ -38,14 +36,14 @@ func (s *LockerSuite) TestNewLocker() {
 }
 
 func (s *LockerSuite) TestLockNewKey() {
-	lock, err := s.locker.Lock(s.ctx, "test_lock_new_key")
+	lock, err := s.locker.Lock(s.ctx, "test_lock_new_key", 3*time.Second)
 
 	s.Nil(err)
 	s.Contains(string(lock.keyName), "test_lock_new_key")
 }
 
 func (s *LockerSuite) TestLockEmptyKey() {
-	_, err := s.locker.Lock(s.ctx, "")
+	_, err := s.locker.Lock(s.ctx, "", 3*time.Second)
 
 	s.Equal(err.Error(), ErrEmptyKey.Error())
 }

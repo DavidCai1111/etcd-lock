@@ -18,9 +18,8 @@ type LockSuite struct {
 func (s *LockSuite) SetupSuite() {
 	s.ctx = context.Background()
 	locker, err := NewLocker(LockerOptions{
-		Address:        "127.0.0.1:2379",
-		DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
-		DefaultTimeout: 3 * time.Second,
+		Address:     "127.0.0.1:2379",
+		DialOptions: []grpc.DialOption{grpc.WithInsecure()},
 	})
 	s.Nil(err)
 	s.locker = locker

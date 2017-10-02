@@ -25,11 +25,10 @@ const (
 // Locker is the client for acquiring distributed locks from etcd. It should be
 // created from NewLocker() function.
 type Locker struct {
-	etcdKeyPrefix  string
-	defaultTimeout time.Duration
-	leaseCli       etcdserverpb.LeaseClient
-	kvCli          etcdserverpb.KVClient
-	lockCli        v3lockpb.LockClient
+	etcdKeyPrefix string
+	leaseCli      etcdserverpb.LeaseClient
+	kvCli         etcdserverpb.KVClient
+	lockCli       v3lockpb.LockClient
 }
 
 // LockerOptions is the options for NewLocker() function.
@@ -40,8 +39,6 @@ type LockerOptions struct {
 	DialOptions []grpc.DialOption
 	// Prefix of the keys of locks in etcd, by default is "__etcd_lock/"
 	EtcdKeyPrefix string
-	// Milliseconds of lock's default timeout.
-	DefaultTimeout time.Duration
 }
 
 // NewLocker creates a Locker according to the given options.
@@ -67,22 +64,15 @@ func NewLocker(options LockerOptions) (*Locker, error) {
 
 // Lock acquires a distributed lock for the specified resource
 // from etcd v3.
-func (l *Locker) Lock(ctx context.Context, keyName string, timeout ...time.Duration) (*Lock, error) {
+func (l *Locker) Lock(ctx context.Context, keyName string, timeout time.Duration) (*Lock, error) {
 	if keyName == "" {
 		return nil, errors.WithStack(ErrEmptyKey)
-	}
-
-	var ttl time.Duration
-	if len(timeout) == 0 {
-		ttl = l.defaultTimeout
-	} else {
-		ttl = timeout[0]
 	}
 
 	var try int
 	for {
 		try++
-		leaseID, err := l.getLease(ctx, ttl)
+		leaseID, err := l.getLease(ctx, timeout)
 
 		if err != nil {
 			return nil, errors.WithStack(err)

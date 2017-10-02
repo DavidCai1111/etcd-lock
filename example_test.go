@@ -11,9 +11,8 @@ import (
 
 func Example() {
 	locker, err := etcdlock.NewLocker(etcdlock.LockerOptions{
-		Address:        "127.0.0.1:2379",
-		DefaultTimeout: 3 * time.Second,
-		DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
+		Address:     "127.0.0.1:2379",
+		DialOptions: []grpc.DialOption{grpc.WithInsecure()},
 	})
 
 	if err != nil {
@@ -28,7 +27,7 @@ func Example() {
 
 	// This lock will be acquired after 5s, and before that current goroutine
 	// will be blocked.
-	anotherLock, err := locker.Lock(context.Background(), "resource_key")
+	anotherLock, err := locker.Lock(context.Background(), "resource_key", 3*time.Second)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -41,9 +40,8 @@ func Example() {
 
 func ExampleLocker_Lock() {
 	locker, err := etcdlock.NewLocker(etcdlock.LockerOptions{
-		Address:        "127.0.0.1:2379",
-		DefaultTimeout: 4 * time.Second,
-		DialOptions:    []grpc.DialOption{grpc.WithInsecure()},
+		Address:     "127.0.0.1:2379",
+		DialOptions: []grpc.DialOption{grpc.WithInsecure()},
 	})
 
 	if err != nil {
@@ -52,12 +50,6 @@ func ExampleLocker_Lock() {
 
 	// This lock will be expired in 3 seconds.
 	if _, err := locker.Lock(context.Background(), "resource_key", 3*time.Second); err != nil {
-		log.Fatalln(err)
-	}
-
-	// This lock will be expired in 4 seconds (the
-	// LockerOptions.DefaultTimeout above).
-	if _, err := locker.Lock(context.Background(), "resource_key"); err != nil {
 		log.Fatalln(err)
 	}
 }
