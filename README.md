@@ -33,8 +33,7 @@ if err != nil {
 }
 
 // Acquire a lock for a specified recource.
-_, err = locker.Lock(context.Background(), "resource_key", 5*time.Second)
-if err != nil {
+if _, err = locker.Lock(context.Background(), "resource_key", 5*time.Second); err != nil {
   log.Fatalln(err)
 }
 
